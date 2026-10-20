@@ -5,6 +5,11 @@
   ],
   "skills": {
     "git-commit-doctor": "https://github.com/EvilPrime98/mySkills",
+    "graphify": {
+      "repo": "https://github.com/Graphify-Labs/graphify/tree/v8/graphify",
+      "ref": "86c57be8204673c2a1b9849a3292a7dd3ab373d8",
+      "market": "skillsmp"
+    },
     "jsdoc-author": "https://github.com/EvilPrime98/mySkills",
     "less-is-more": "https://github.com/EvilPrime98/mySkills",
     "llm-council": "https://github.com/aiwithremy/claude-skills-llm-council",
@@ -12,6 +17,7 @@
     "npm-lib-setup": "https://github.com/EvilPrime98/mySkills",
     "npm-ready-doctor": "https://github.com/EvilPrime98/mySkills",
     "pre-push-production-doctor": "https://github.com/EvilPrime98/mySkills",
+    "readme-creator-doctor": "https://github.com/EvilPrime98/mySkills",
     "reenforcement": "https://github.com/EvilPrime98/mySkills",
     "repo-professionalizer": "https://github.com/EvilPrime98/mySkills",
     "skill-format-doctor": "https://github.com/EvilPrime98/mySkills"
