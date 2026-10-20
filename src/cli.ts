@@ -10,7 +10,7 @@ const settingsPath = join(claudeDir, 'settings.json');
 const soundPath = join(claudeDir, 'sounds', 'done.wav');
 const defaultSource = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'Media', 'tada.wav');
 
-const USAGE = `Usage: claude-stop-sound <install|uninstall> [--source <wav>] [--peak <0-1>]
+const USAGE = `Usage: donechime <install|uninstall> [--source <wav>] [--peak <0-1>]
 
   install     Create a normalized ~/.claude/sounds/done.wav and add the Stop hook
   uninstall   Remove the hook and done.wav

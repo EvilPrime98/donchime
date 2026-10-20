@@ -1,7 +1,7 @@
 {
-  "name": "claude-stop-sound",
+  "name": "donechime",
   "version": "0.0.0",
-  "description": "Play a loud sound when Claude Code finishes a turn (Windows). Installs a Stop hook.",
+  "description": "Claude Code Stop hook for Windows: plays a loud sound when Claude finishes a turn. Unofficial, not affiliated with Anthropic.",
   "type": "module",
   "exports": {
     ".": {
@@ -12,7 +12,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "claude-stop-sound": "./dist/cli.js"
+    "donechime": "./dist/cli.js"
   },
   "files": [
     "dist"

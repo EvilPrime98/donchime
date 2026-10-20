@@ -20,7 +20,7 @@ function makeWav(samples: number[]): Buffer {
   return Buffer.concat([h, data]);
 }
 
-describe('claude-stop-sound', () => {
+describe('donechime', () => {
   it('exports a VERSION string', () => {
     expect(typeof VERSION).toBe('string');
   });
