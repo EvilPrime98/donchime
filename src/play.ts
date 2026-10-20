@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -53,17 +53,18 @@ export function throttled(
   return false;
 }
 
-/** Fire-and-forget playback so the hook never blocks the agent. */
-function playDetached(wav: string): void {
+/**
+ * Play to completion inside the hook. A detached child is killed when Claude Code reaps the
+ * hook's process tree, so the sound never starts; the clips are short and the hook timeout is 5s.
+ */
+function playBlocking(wav: string): void {
   const script = `(New-Object Media.SoundPlayer $env:DONECHIME_WAV).PlaySync()`;
-  const child = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], {
-    detached: true,
+  spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], {
     stdio: 'ignore',
     windowsHide: true,
+    timeout: 4000,
     env: { ...process.env, DONECHIME_WAV: wav },
   });
-  child.on('error', () => {});
-  child.unref();
 }
 
 /** Hook entry point: never throws, never prints, always succeeds. */
@@ -76,7 +77,7 @@ export function play(stdin: string, argEvent?: string): void {
     const wav = resolveSound(event, config);
     if (!wav || !existsSync(wav)) return;
     if (throttled(event, config.cooldownMs ?? DEFAULT_COOLDOWN_MS)) return;
-    playDetached(wav);
+    playBlocking(wav);
   } catch {
     /* a sound hook must never fail the agent */
   }
