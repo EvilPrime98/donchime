@@ -8,3 +8,4 @@ coverage/
 .changeset/*.md
 !.changeset/README.md
 docs/
+.claude/
