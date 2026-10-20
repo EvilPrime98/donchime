@@ -1,7 +1,7 @@
 {
   "name": "donechime",
   "version": "0.0.0",
-  "description": "Claude Code Stop hook for Windows: plays a loud sound when Claude finishes a turn. Unofficial, not affiliated with Anthropic.",
+  "description": "Know what your agent needs by ear: distinct sounds for done, needs-you and failed in Claude Code, via hooks. Windows. Unofficial, not affiliated with Anthropic.",
   "type": "module",
   "exports": {
     ".": {
@@ -34,7 +34,8 @@
     "claude-code",
     "hook",
     "sound",
-    "windows"
+    "windows",
+    "notification"
   ],
   "license": "MIT",
   "engines": {

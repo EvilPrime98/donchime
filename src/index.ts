@@ -2,5 +2,7 @@
 export const VERSION = '0.0.0';
 export { normalizeWav } from './wav.js';
 export type { NormalizeResult } from './wav.js';
-export { addStopHook, removeStopHook, HOOK_COMMAND } from './settings.js';
-export type { Settings } from './settings.js';
+export { addHook, removeHooks, HOOK_COMMAND, EVENTS } from './settings.js';
+export type { Settings, HookEvent } from './settings.js';
+export { resolveSound, throttled } from './play.js';
+export type { Config } from './play.js';

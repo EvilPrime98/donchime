@@ -1,5 +1,8 @@
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { VERSION, normalizeWav, addStopHook, removeStopHook } from './index.js';
+import { VERSION, normalizeWav, addHook, removeHooks, resolveSound, throttled } from './index.js';
 
 function makeWav(samples: number[]): Buffer {
   const data = Buffer.alloc(samples.length * 2);
@@ -36,13 +39,28 @@ describe('donechime', () => {
 
   it('adds the hook once and removes it cleanly', () => {
     const base = { theme: 'dark' };
-    const added = addStopHook(addStopHook(base));
+    const added = addHook(addHook(base, 'Stop'), 'Notification');
     expect(added.hooks?.Stop).toHaveLength(1);
-    expect(removeStopHook(added)).toEqual(base);
+    expect(added.hooks?.Notification).toHaveLength(1);
+    expect(removeHooks(added)).toEqual(base);
   });
 
-  it('keeps unrelated Stop hooks on uninstall', () => {
+  it('keeps unrelated hooks on uninstall', () => {
     const other = { hooks: { Stop: [{ hooks: [{ type: 'command', command: 'echo hi' }] }] } };
-    expect(removeStopHook(addStopHook(other))).toEqual(other);
+    expect(removeHooks(addHook(other, 'Stop'))).toEqual(other);
+  });
+
+  it('resolves sounds from config', () => {
+    expect(resolveSound('Stop', { Stop: false })).toBeUndefined();
+    expect(resolveSound('Stop', { Stop: 'x.wav' })).toBe('x.wav');
+    expect(resolveSound('Stop', {})).toMatch(/done\.wav$/);
+    expect(resolveSound('PreToolUse', {})).toBeUndefined();
+  });
+
+  it('throttles repeats within the cooldown', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'dc-'));
+    expect(throttled('Stop', 1000, dir, Date.now())).toBe(false);
+    expect(throttled('Stop', 1000, dir, Date.now())).toBe(true);
+    expect(throttled('Stop', 1000, dir, Date.now() + 5000)).toBe(false);
   });
 });

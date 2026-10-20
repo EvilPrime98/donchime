@@ -2,20 +2,21 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { normalizeWav } from './wav.js';
-import { addStopHook, removeStopHook, type Settings } from './settings.js';
+import { play, SOUND_DIR } from './play.js';
+import { BUNDLED } from './sounds.js';
+import { addHook, EVENTS, removeHooks, type Settings } from './settings.js';
 
 const claudeDir = join(homedir(), '.claude');
 const settingsPath = join(claudeDir, 'settings.json');
-const soundPath = join(claudeDir, 'sounds', 'done.wav');
-const defaultSource = join(process.env['SystemRoot'] ?? 'C:\\Windows', 'Media', 'tada.wav');
+const legacySound = join(claudeDir, 'sounds', 'done.wav');
 
-const USAGE = `Usage: donechime <install|uninstall> [--source <wav>] [--peak <0-1>]
+const USAGE = `Usage: donechime <install|uninstall|play [event]>
 
-  install     Create a normalized ~/.claude/sounds/done.wav and add the Stop hook
-  uninstall   Remove the hook and done.wav
-  --source    WAV to use (default: ${defaultSource})
-  --peak      Target peak, 0-1 (default: 0.95)`;
+  install     Write bundled sounds and add ${EVENTS.join(', ')} hooks
+  uninstall   Remove the hooks and bundled sounds
+  play        Hook entry point: reads hook JSON on stdin (or pass an event name)
+
+Config: ~/.donechime.json, e.g. { "Notification": "C:/sounds/x.wav", "Stop": false, "cooldownMs": 2000 }`;
 
 function readSettings(): Settings {
   if (!existsSync(settingsPath)) return {};
@@ -28,37 +29,37 @@ function writeSettings(settings: Settings): void {
   writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`);
 }
 
-function flag(args: string[], name: string): string | undefined {
-  const i = args.indexOf(name);
-  return i >= 0 ? args[i + 1] : undefined;
-}
-
 function main(args: string[]): number {
   const [cmd] = args;
+  if (cmd === 'play') {
+    // Hooks must never block or fail the agent: exit 0 no matter what.
+    const event = args[1];
+    const stdin = event || process.stdin.isTTY ? '' : readFileSync(0, 'utf8');
+    play(stdin, event);
+    return 0;
+  }
   if (cmd === 'install') {
     if (process.platform !== 'win32') {
-      console.error('The hook uses Windows PowerShell SoundPlayer; Windows only.');
+      console.error('Playback uses Windows PowerShell SoundPlayer; Windows only.');
       return 1;
     }
-    const peak = Number(flag(args, '--peak') ?? 0.95);
-    if (!(peak > 0 && peak <= 1)) {
-      console.error('--peak must be in (0, 1]');
-      return 1;
+    mkdirSync(SOUND_DIR, { recursive: true });
+    for (const [name, data] of Object.entries(BUNDLED)) {
+      writeFileSync(join(SOUND_DIR, `${name}.wav`), data);
     }
-    const source = flag(args, '--source') ?? defaultSource;
-    const result = normalizeWav(readFileSync(source), peak);
-    mkdirSync(dirname(soundPath), { recursive: true });
-    writeFileSync(soundPath, result.data);
-    writeSettings(addStopHook(readSettings()));
-    console.log(`Wrote ${soundPath} (x${result.factor.toFixed(2)}, peak ${peak})`);
-    console.log(`Hook added to ${settingsPath} (backup: settings.json.bak)`);
-    console.log('If it does not fire, open /hooks once or restart Claude Code.');
+    writeSettings(EVENTS.reduce(addHook, readSettings()));
+    console.log(`Wrote sounds to ${SOUND_DIR}`);
+    console.log(`Hooks added to ${settingsPath} (backup: settings.json.bak)`);
+    console.log(
+      'Needs `donechime` on PATH (npm i -g donechime). Open /hooks once or restart Claude Code.',
+    );
     return 0;
   }
   if (cmd === 'uninstall') {
-    if (existsSync(settingsPath)) writeSettings(removeStopHook(readSettings()));
-    rmSync(soundPath, { force: true });
-    console.log('Removed Stop hook and done.wav');
+    if (existsSync(settingsPath)) writeSettings(removeHooks(readSettings()));
+    rmSync(SOUND_DIR, { recursive: true, force: true });
+    rmSync(legacySound, { force: true });
+    console.log('Removed donechime hooks and sounds');
     return 0;
   }
   console.log(USAGE);
@@ -68,6 +69,6 @@ function main(args: string[]): number {
 try {
   process.exitCode = main(process.argv.slice(2));
 } catch (err) {
-  console.error(err instanceof Error ? err.message : err);
-  process.exitCode = 1;
+  if (process.argv[2] !== 'play') console.error(err instanceof Error ? err.message : err);
+  process.exitCode = process.argv[2] === 'play' ? 0 : 1;
 }
