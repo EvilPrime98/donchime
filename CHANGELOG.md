@@ -1,5 +1,11 @@
 # donechime
 
+## 0.1.1
+
+### Patch Changes
+
+- ca15ad9: Fix sounds not playing from Claude Code hooks: play synchronously instead of in a detached process that was killed when the hook exited.
+
 ## 0.1.0
 
 ### Minor Changes
