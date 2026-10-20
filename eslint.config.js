@@ -15,6 +15,14 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'coverage/', 'eslint.config.js', 'vitest.config.ts'],
+    ignores: [
+      'dist/',
+      'node_modules/',
+      'coverage/',
+      '.claude/',
+      'graphify-out/',
+      'eslint.config.js',
+      'vitest.config.ts',
+    ],
   },
 );

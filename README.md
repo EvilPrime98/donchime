@@ -23,14 +23,12 @@ Unofficial; not affiliated with Anthropic.
 
 ## Install
 
-Requires Node.js 18+ and Windows.
+Requires Node.js 18+ and Windows. Sound plays on the machine running Claude Code, so SSH and WSL sessions won't play on your desktop.
 
 ```sh
 npm install -g donechime
 donechime install
 ```
-
-<!-- TODO: package is not yet published (version 0.0.0); confirm the npm install command after the first release -->
 
 `donechime` must stay on your `PATH`, because the hooks run `donechime play`. If a hook doesn't fire, open `/hooks` once in Claude Code or restart it.
 
@@ -67,9 +65,7 @@ Issues and pull requests are welcome. Please open an issue before sending a larg
 
 ## License
 
-MIT, as declared in `package.json`.
-
-<!-- TODO: no LICENSE file detected in the repository -->
+MIT. See [LICENSE](LICENSE).
 
 ## Author
 
